@@ -15,12 +15,11 @@ class Mechanize
         uri       = params[:uri]
         http_obj  = params[:connection]
 
-        ssl = nil
-        if http_obj.instance_variable_defined?(:@ssl_context)
-          ssl = http_obj.instance_variable_get(:@ssl_context)
-        end
+        ssl = if http_obj.instance_variable_defined?(:@ssl_context)
+                http_obj.instance_variable_get(:@ssl_context)
+              end
 
-        if uri.scheme == 'https' && ! http_obj.started? && ! ssl.frozen?
+        if uri.scheme == 'https' && ! http_obj.started? && (ssl.nil? || ! ssl.frozen?)
           http_obj.use_ssl = true
           http_obj.verify_mode = OpenSSL::SSL::VERIFY_NONE
           if @ca_file
